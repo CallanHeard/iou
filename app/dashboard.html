@@ -4,23 +4,27 @@
 	<meta charset="UTF-8">
 	<title>iou Dashboard</title>
 </head>
-<body onload="loadUser();">
+<body onload="loadPage(); dashboard();">
+	
+	<div id="topbar">
+		<a href="#">=</a>
+		<h1>Dashboard</h1>
+	</div>
 	
 	<div id="sidebar">
 	
-		<div id="profile">
-			<img src="" alt="" />
-			<p></p>
-			<p></p>
-		</div>
+		<div id="profile"></div>
 	
 		<ul id="nav">
 			<li><a href="#">Dashboard</a></li>
 			<li><a href="#">Notifications</a></li>
 			<li><a href="#">Create Payment</a></li>
+			<li><a href="#">Account</a></li>
 		</ul>
 	
 	</div>
+	
+	<ul id="payments"></ul>
 	
 	<script src="_js/system.js"></script>
 </body>
