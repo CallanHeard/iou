@@ -50,7 +50,7 @@ if (isset($_GET['payments'])) {
 	
 	$connection = establishConnection(); //Connect to database
 
-	$sql = "SELECT payment.id, payment.name, payment.total, payment.portion FROM user, payment WHERE user.id={$_GET['payments']}";	//Generate SQL
+	$sql = "SELECT payment.id, payment.host_id, payment.name, payment.total, payment.portion FROM user, payment WHERE user.id={$_GET['payments']}";	//Generate SQL
 	$result = $connection->query($sql);																								//And execute
 	
 	//If there is some payments
@@ -63,9 +63,10 @@ if (isset($_GET['payments'])) {
 			
 			echo "<payment>";						//XML root element
 			echo "<id>{$row[0]}</id>";				//Return payment ID
-			echo "<name>{$row[1]}</name>";			//Return payment name
-			echo "<total>{$row[2]}</total>";		//Return payment total
-			echo "<portion>{$row[3]}</portion>";	//Return payment portion
+			echo "<hostId>{$row[1]}</hostId>";		//Return payment host ID
+			echo "<name>{$row[2]}</name>";			//Return payment name
+			echo "<total>{$row[3]}</total>";		//Return payment total
+			echo "<portion>{$row[4]}</portion>";	//Return payment portion
 			echo "</payment>";
 			
 		}

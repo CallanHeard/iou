@@ -88,12 +88,13 @@ function dashboard() {
 		
 		//Get payment details
 		var id		= payments[i].childNodes[0].childNodes[0].nodeValue; //ID
-		var name	= payments[i].childNodes[1].childNodes[0].nodeValue; //Name
-		var total	= payments[i].childNodes[2].childNodes[0].nodeValue; //Total
-		var portion	= payments[i].childNodes[3].childNodes[0].nodeValue; //Portion
+		var hostId	= payments[i].childNodes[1].childNodes[0].nodeValue; //Host ID
+		var name	= payments[i].childNodes[2].childNodes[0].nodeValue; //Name
+		var total	= payments[i].childNodes[3].childNodes[0].nodeValue; //Total
+		var portion	= payments[i].childNodes[4].childNodes[0].nodeValue; //Portion
 
 		//Create new Payment object with details from XML and add to list of payments
-		document.getElementById('payments').innerHTML += new Payment(id, name, total, portion);
+		document.getElementById('payments').innerHTML += new Payment(id, hostId, name, total, portion);
 			
 	}
 	
@@ -158,19 +159,21 @@ function User(id, firstName, lastName, email) {
 }
 
 //Payment class
-function Payment(id, name, total, portion) {
+function Payment(id, hostId, name, total, portion) {
 	
 	//Payment properties
-	this.id			= id;		//ID
-	this.name		= name;		//Name
-	this.total		= total;	//Amount
-	this.portion	= portion;	//Portion
+	this.id			= id;												//ID
+	this.hostId		= hostId;											//Host ID
+	this.name		= name;												//Name
+	this.total		= total;											//Amount
+	this.portion	= portion;											//Portion
+	this.image		= 'http://lorempixel.com/40/40/people/?' + hostId;	//Link to payment image (host's)
 	
 	//Override object 'toString()' method to generate mark-up
 	Payment.prototype.toString = function() {
 		
 		//Return mark-up for displaying payment
-		return '<li><a href="#"><p class="name">' + this.name + '</p><p class="portion">' + this.portion + '</p></a></li>';
+		return '<li><img src="' + this.image + '" alt"Payment ' + this.id + ' Image" /><a href="#"><p class="name">' + this.name + '</p><p class="portion">' + this.portion + '</p></a></li>';
 		
 	}
 	
