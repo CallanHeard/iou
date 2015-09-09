@@ -32,7 +32,7 @@ if (isset($_GET['login'])) {
 		
 		$user = mysqli_fetch_array($result); //Get user row
 		
-		echo "<user>";
+		echo "<user>";											//XML root element
 		echo "<id>".$user['id']."</id>";						//Return user's ID
 		echo "<firstName>".$user['first_name']."</firstName>";	//Return user's first name
 		echo "<lastName>{$user['last_name']}</lastName>";		//Return user's last name
@@ -50,8 +50,8 @@ if (isset($_GET['payments'])) {
 	
 	$connection = establishConnection(); //Connect to database
 
-	$sql = "SELECT payment.id, payment.name, payment.amount FROM user, payment WHERE user.id={$_GET['payments']}";	//Generate SQL
-	$result = $connection->query($sql);												//And execute
+	$sql = "SELECT payment.id, payment.name, payment.total, payment.portion FROM user, payment WHERE user.id={$_GET['payments']}";	//Generate SQL
+	$result = $connection->query($sql);																								//And execute
 	
 	//If there is some payments
 	if ($result->num_rows > 0) {
@@ -61,16 +61,61 @@ if (isset($_GET['payments'])) {
 		//Loop through the results
 		while ($row = $result->fetch_row()) {
 			
-			echo "<payment>";
-			echo "<id>{$row[0]}</id>";
-			echo "<name>{$row[1]}</name>";
-			echo "<amount>{$row[2]}</amount>";
+			echo "<payment>";						//XML root element
+			echo "<id>{$row[0]}</id>";				//Return payment ID
+			echo "<name>{$row[1]}</name>";			//Return payment name
+			echo "<total>{$row[2]}</total>";		//Return payment total
+			echo "<portion>{$row[3]}</portion>";	//Return payment portion
 			echo "</payment>";
 			
 		}
 		
 		echo '</result>'; //Close base XML element
 	
+	}
+	
+	$connection->close(); //Close database connection
+	
+}
+
+//Code for getting amount user owes/is owed
+if (isset($_GET['owes']) || isset($_GET['owed'])) {
+	
+	$connection = establishConnection();	//Connect to database
+	$sql;									//Variable for storing generated SQL
+	
+	//If getting amount user owes
+	if(isset($_GET['owes'])) {
+		
+		//Generate SQL
+		$sql = "SELECT SUM(p.portion) AS result
+				FROM user u
+				INNER JOIN contributes c ON u.id = c.user_id
+				INNER JOIN payment p ON c.payment_id = p.id
+				WHERE c.paid = 0 AND u.id ={$_GET['owes']}";
+				
+	}
+	
+	//If getting amount user is owed
+	if(isset($_GET['owed'])) {
+		
+		//Generate SQL
+		$sql = "SELECT SUM(portion) AS result
+				FROM user u
+				INNER JOIN contributes c ON u.id = c.user_id
+				INNER JOIN payment p ON c.payment_id = p.id
+				WHERE c.paid=0 AND p.host_id = {$_GET['owed']}";
+				
+	}
+	
+	$result = $connection->query($sql); //And execute
+
+	//There should only be one
+	if ($result->num_rows == 1) {
+		
+		$user = mysqli_fetch_array($result);											//Get result row
+		echo "<result>".($user['result'] == null ? '0' : $user['result'])."</result>";	//Return result (checking for null)
+		
 	}
 	
 	$connection->close(); //Close database connection

@@ -26,33 +26,6 @@ function loadPage() {
 	user.loadProfile();	//Display user profile
 }
 
-//Function for loading page content
-function dashboard() {
-	
-	xmlhttp = new XMLHttpRequest();									//Create new AJAX request object
-	xmlhttp.open("GET","../handle.php?payments=" + user.id, false);	//Specify AJAX request
-	xmlhttp.send();													//And send
-		
-	parser		= new DOMParser();											//Parser object for parsing XML data
-	paymentsXml	= parser.parseFromString(xmlhttp.responseText, "text/xml");	//Parse response string into XML document
-
-	var payments = paymentsXml.getElementsByTagName('payment'); //Get payment elements from XML document
-	
-	//Loop through payment elements
-	for (var i=0; i<payments.length; i++) {
-		
-		//Get payment details
-		var id		= payments[i].childNodes[0].childNodes[0].nodeValue; //ID
-		var name	= payments[i].childNodes[1].childNodes[0].nodeValue; //Name
-		var amount	= payments[i].childNodes[2].childNodes[0].nodeValue; //Amount
-
-		//Create new Payment object with details from XML and add to list of payments
-		document.getElementById('payments').innerHTML += new Payment(id, name, amount);
-			
-	}
-	
-}
-
 //Function for loading user details into an object
 function loadUser() {
 
@@ -74,6 +47,39 @@ function loadUser() {
 	
 }
 
+//Function for loading Dashboard page content
+function dashboard() {
+	
+	//Update header values
+	document.getElementById('owes').innerHTML		+= user.get('owes');	//Update header with total amount user owes
+	document.getElementById('owed').innerHTML		+= user.get('owed');	//Update header with total amount user is owed
+	document.getElementById('balance').innerHTML	+= user.balance();		//Update header with user's balance
+	
+	xmlhttp = new XMLHttpRequest();									//Create new AJAX request object
+	xmlhttp.open("GET","../handle.php?payments=" + user.id, false);	//Specify AJAX request
+	xmlhttp.send();													//And send
+		
+	parser		= new DOMParser();											//Parser object for parsing XML data
+	paymentsXml	= parser.parseFromString(xmlhttp.responseText, "text/xml");	//Parse response string into XML document
+
+	var payments = paymentsXml.getElementsByTagName('payment'); //Get payment elements from XML document
+	
+	//Loop through payment elements
+	for (var i=0; i<payments.length; i++) {
+		
+		//Get payment details
+		var id		= payments[i].childNodes[0].childNodes[0].nodeValue; //ID
+		var name	= payments[i].childNodes[1].childNodes[0].nodeValue; //Name
+		var total	= payments[i].childNodes[2].childNodes[0].nodeValue; //Total
+		var portion	= payments[i].childNodes[3].childNodes[0].nodeValue; //Portion
+
+		//Create new Payment object with details from XML and add to list of payments
+		document.getElementById('payments').innerHTML += new Payment(id, name, total, portion);
+			
+	}
+	
+}
+
 //User class
 function User(id, firstName, lastName, email) {
 	
@@ -84,6 +90,39 @@ function User(id, firstName, lastName, email) {
 	this.fullName		= firstName + ' ' + lastName;					//Full name
 	this.email			= email;										//Email
 	this.profileImage	= 'http://lorempixel.com/40/40/people/?' + id;	//Link to profile image
+	this.owes			= 0;											//How the user owes (default = 0)
+	this.owed			= 0;											//How the user is owed (default = 0)
+	
+	//Method for retrieving and updating owed/owes values from server
+	this.get = function(field) {
+		
+		xmlhttp = new XMLHttpRequest();											//Create new AJAX request object
+		xmlhttp.open("GET","../handle.php?" + field + "=" + user.id, false);	//Specify AJAX request
+		xmlhttp.send();															//And send
+		
+		parser	= new DOMParser();											//Parser object for parsing XML data
+		result	= parser.parseFromString(xmlhttp.responseText, "text/xml");	//Parse response string into XML document
+
+		//Store result in appropriate property
+		switch(field) {
+			//Store owes
+			case 'owes':
+				this.owes = result.childNodes[0].childNodes[0].nodeValue
+				break;
+			//Store owed
+			case 'owed':
+				this.owed = result.childNodes[0].childNodes[0].nodeValue
+				break;
+		}
+		
+		return result.childNodes[0].childNodes[0].nodeValue; //Return result
+		
+	}
+	
+	//Method for calculating and returning user's balance (owed-owes)
+	this.balance = function() {
+		return this.owed - this.owes; //Calculate and return
+	}
 	
 	//Method for displaying the user's profile
 	this.loadProfile = function() {
@@ -100,18 +139,19 @@ function User(id, firstName, lastName, email) {
 }
 
 //Payment class
-function Payment(id, name, amount) {
+function Payment(id, name, total, portion) {
 	
 	//Payment properties
-	this.id		= id;		//ID
-	this.name	= name;		//Name
-	this.amount	= amount;	//Amount
+	this.id			= id;		//ID
+	this.name		= name;		//Name
+	this.total		= total;	//Amount
+	this.portion	= portion;	//Portion
 	
 	//Override object 'toString()' method to generate mark-up
 	Payment.prototype.toString = function() {
 		
 		//Return mark-up for displaying payment
-		return '<li><a href="#"><p class="name">' + this.name + '</p><p class="amount">' + this.amount + '</p></a></li>';
+		return '<li><a href="#"><p class="name">' + this.name + '</p><p class="portion">' + this.portion + '</p></a></li>';
 		
 	}
 	
