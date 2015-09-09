@@ -50,10 +50,29 @@ function loadUser() {
 //Function for loading Dashboard page content
 function dashboard() {
 	
-	//Update header values
-	document.getElementById('owes').innerHTML		+= user.get('owes');	//Update header with total amount user owes
-	document.getElementById('owed').innerHTML		+= user.get('owed');	//Update header with total amount user is owed
-	document.getElementById('balance').innerHTML	+= user.balance();		//Update header with user's balance
+	//Update owes header
+	document.getElementById('owes').childNodes[1].innerHTML += user.get('owes');	//Update owes value
+	if (user.owes > 0) {															//Update owes colouring
+		document.getElementById('owes').childNodes[1].className = 'negative';		//Update for owing an amount
+	}
+	else {
+		document.getElementById('owes').childNodes[1].className = 'positive';		//Update for not owing anything
+	}
+	
+	//Update owed header
+	document.getElementById('owed').childNodes[1].innerHTML += user.get('owed');	//Update owed value
+	if (user.owed > 0) {															//Update owes colouring
+		document.getElementById('owes').childNodes[1].className = 'positive';		//Update for being owed an amount
+	}
+	
+	//Update balance header
+	document.getElementById('balance').childNodes[1].innerHTML += user.balance();	//Update balance value
+	if (user.balance() < 0) {														//Update balance colouring
+		document.getElementById('balance').childNodes[1].className = 'negative';	//Update for negative balance
+	}
+	else {
+		document.getElementById('balance').childNodes[1].className = 'positive';	//Update for positive balance
+	}
 	
 	xmlhttp = new XMLHttpRequest();									//Create new AJAX request object
 	xmlhttp.open("GET","../handle.php?payments=" + user.id, false);	//Specify AJAX request
