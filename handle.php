@@ -29,16 +29,7 @@ if (isset($_GET['login'])) {
 	
 	//There should only be one
 	if ($result->num_rows == 1) {
-		
-		$user = mysqli_fetch_array($result); //Get user row
-		
-		echo "<user>";											//XML root element
-		echo "<id>".$user['id']."</id>";						//Return user's ID
-		echo "<firstName>".$user['first_name']."</firstName>";	//Return user's first name
-		echo "<lastName>{$user['last_name']}</lastName>";		//Return user's last name
-		echo "<email>{$user['email']}</email>";					//Return user's email
-		echo "</user>";
-		
+		echo json_encode(mysqli_fetch_array($result)); //Return user details in JSON form
 	}
 	
 	$connection->close(); //Close database connection
