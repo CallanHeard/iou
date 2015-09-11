@@ -2,8 +2,8 @@ var user; //User object to be instantiated
 
 //Function for loading generic page content
 function loadPage() {
-	user = new User(JSON.parse(document.cookie.split('=')[1])); //Load user object from cookie
-	user.loadProfile();											//Display user profile
+	user = new User(JSON.parse(sessionStorage.user));	//Load user object from session storage
+	user.loadProfile();									//Display user profile
 }
 
 //Function for loading Dashboard page content
