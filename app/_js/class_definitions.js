@@ -5,8 +5,8 @@ User.prototype = {
 		return new this(json);
 	},
 	
-	owes: 0, //How much the user owes (Used in balance function to reduce server requests)
-	owed: 0, //How much the user is owed (Used in balance function to reduce server requests)
+	owes: 0, //How much the user owes (stored and used in balance function to reduce server requests)
+	owed: 0, //How much the user is owed (stored and used in balance function to reduce server requests)
 	
 	//Method for retrieving and updating owed/owes values from server
 	get: function(field) {
@@ -55,27 +55,20 @@ User.prototype = {
 
 //User class
 function User(json) {
+
+	for (var property in json) this[sanitise(property)] = json[property]; //Initialise object from JSON
 	
-	//User properties
-	this.id				= json['id'];											//Initialise ID
-	this.firstName		= json['first_name'];									//Initialise first name
-	this.lastName		= json['last_name'];									//Initialise last name
-	this.fullName		= json['first_name'] + ' ' + json['last_name'];			//Initialise full name
-	this.email			= json['email'];										//Initialise email
-	this.profileImage	= 'http://lorempixel.com/40/40/people/?' + json['id'];	//Initialise link to profile image
+	this.fullName		= this.firstName + ' ' + this.lastName;				//Initialise full name
+	this.profileImage	= 'http://lorempixel.com/40/40/people/?' + this.id;	//Initialise link to profile image
 	
 }
 
 //Payment class
-function Payment(id, hostId, name, total, portion) {
+function Payment(json) {
 	
-	//Payment properties
-	this.id			= id;												//ID
-	this.hostId		= hostId;											//Host ID
-	this.name		= name;												//Name
-	this.total		= total;											//Amount
-	this.portion	= portion;											//Portion
-	this.image		= 'http://lorempixel.com/40/40/people/?' + hostId;	//Link to payment image (host's)
+	for (var property in json) this[sanitise(property)] = json[property]; //Initialise object from JSON
+
+	this.image = 'http://lorempixel.com/40/40/people/?' + this.hostId;	//Initialise link to payment image (host's)
 	
 	//Override object 'toString()' method to generate mark-up
 	Payment.prototype.toString = function() {
@@ -85,4 +78,13 @@ function Payment(id, hostId, name, total, portion) {
 		
 	}
 	
+}
+
+//Function for sanitising field from database into JavaScript convention (convert '_' spaced into CamelCase)
+function sanitise(string) {
+	parts = string.split('_'); //Get each part of field name
+	for (var i=1; i<parts.length; i++){
+        parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].substr(1);//Capitalise first letter of each part (other than first)
+    }  
+	return parts.join(''); //Recombine into string and return
 }

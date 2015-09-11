@@ -33,28 +33,15 @@ function dashboard() {
 		document.getElementById('balance').childNodes[1].className = 'positive';	//Update for positive balance
 	}
 	
-	xmlhttp = new XMLHttpRequest();									//Create new AJAX request object
-	xmlhttp.open("GET","../handle.php?payments=" + user.id, false);	//Specify AJAX request
-	xmlhttp.send();													//And send
-		
-	parser		= new DOMParser();											//Parser object for parsing XML data
-	paymentsXml	= parser.parseFromString(xmlhttp.responseText, "text/xml");	//Parse response string into XML document
-
-	var payments = paymentsXml.getElementsByTagName('payment'); //Get payment elements from XML document
+	xmlhttp = new XMLHttpRequest();											//Create new AJAX request object
+	xmlhttp.open("GET","../handle.php?user_payments=" + user.id, false);	//Specify AJAX request
+	xmlhttp.send();															//And send
 	
-	//Loop through payment elements
-	for (var i=0; i<payments.length; i++) {
-		
-		//Get payment details
-		var id		= payments[i].childNodes[0].childNodes[0].nodeValue; //ID
-		var hostId	= payments[i].childNodes[1].childNodes[0].nodeValue; //Host ID
-		var name	= payments[i].childNodes[2].childNodes[0].nodeValue; //Name
-		var total	= payments[i].childNodes[3].childNodes[0].nodeValue; //Total
-		var portion	= payments[i].childNodes[4].childNodes[0].nodeValue; //Portion
+	var payments = JSON.parse(xmlhttp.responseText); //Parse returned JSON string into objects
 
-		//Create new Payment object with details from XML and add to list of payments
-		document.getElementById('payments').innerHTML += new Payment(id, hostId, name, total, portion);
-			
+	//Loop through all of the payments
+	for (var i=0; i<payments.length; i++) {
+		document.getElementById('payments').innerHTML += new Payment(payments[i]); //And create new Payment object from JSON and add to page
 	}
 	
 }
